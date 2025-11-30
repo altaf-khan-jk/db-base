@@ -26,3 +26,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Initialize MySQL database schema
+        run: |
+          echo "Waiting for MySQL to be ready..."
+          sleep 10
+          
+          echo "Creating database..."
+          mysql -h mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} < sql/create_database.sql
+          
+          echo "Creating tables..."
+          mysql -h mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} climate_db < sql/create_tables.sql
