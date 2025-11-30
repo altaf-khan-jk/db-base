@@ -49,3 +49,11 @@ jobs:
         run: |
           pip install pymongo
           python scripts/test_mongo_connection.py
+
+      - name: Run ETL Data Load
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+        run: |
+          pip install pymongo mysql-connector-python pandas requests
+          python scripts/etl.py
