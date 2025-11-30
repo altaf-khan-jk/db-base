@@ -49,7 +49,7 @@ def insert_into_mysql(df):
 
     print("\n Connecting to MySQL...")
     conn = mysql.connector.connect(
-        host="mysql",  # GitHub Actions MySQL service name
+        host="127.0.0.1",  # GitHub Actions MySQL service name
         user="root",
         password=mysql_password,
         database="climate_db"

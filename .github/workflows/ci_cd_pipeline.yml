@@ -30,13 +30,16 @@ jobs:
       - name: Initialize MySQL database schema
         run: |
           echo "Waiting for MySQL to be ready..."
-          sleep 10
+          until mysqladmin ping -h 127.0.0.1 --silent; do
+            echo "Waiting..."
+            sleep 3
+          done
           
           echo "Creating database..."
-          mysql -h mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} < sql/create_database.sql
+          mysql -h 127.0.0.1 -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} < sql/create_database.sql
           
           echo "Creating tables..."
-          mysql -h mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} climate_db < sql/create_tables.sql
+          mysql -h 127.0.0.1 -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} climate_db < sql/create_tables.sql
 
       - name: Set up Python
         uses: actions/setup-python@v4

@@ -7,7 +7,7 @@ import time
 def simulate_db_operations(thread_id):
     mysql_password = os.getenv("MYSQL_ROOT_PASSWORD")
     conn = mysql.connector.connect(
-        host="mysql",
+        host="127.0.0.1",
         user="root",
         password=mysql_password,
         database="climate_db"
