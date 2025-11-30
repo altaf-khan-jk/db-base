@@ -57,3 +57,10 @@ jobs:
         run: |
           pip install pymongo mysql-connector-python pandas requests
           python scripts/etl.py
+
+      - name: Run concurrent database operations
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+        run: |
+          pip install mysql-connector-python
+          python scripts/concurrent_ops.py
