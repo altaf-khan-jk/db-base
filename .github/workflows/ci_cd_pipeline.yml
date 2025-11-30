@@ -27,6 +27,8 @@ jobs:
         image: mongo:6
         ports:
           - "27017:27017"
+        env:
+          MONGO_INITDB_DATABASE: climate_db
         options: >-
           --health-cmd="mongo --eval 'db.runCommand({ ping: 1 })'"
           --health-interval=10s
@@ -41,52 +43,47 @@ jobs:
         run: |
           echo "Waiting for MySQL..."
           until mysqladmin ping -h 127.0.0.1 --silent; do
-            echo "Waiting..."
             sleep 3
           done
-
-          echo "Creating database..."
           mysql -h 127.0.0.1 -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} --binary-mode=1 < sql/create_database.sql
-
-          echo "Creating tables..."
           mysql -h 127.0.0.1 -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} --binary-mode=1 climate_db < sql/create_tables.sql
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: '3.10'
 
       - name: Wait for MongoDB
         run: |
           echo "Waiting for MongoDB..."
-          until mongo --eval "db.runCommand({ ping: 1 })" > /dev/null 2>&1; do
+          until mongo --host 127.0.0.1 --eval "db.runCommand({ ping: 1 })" > /dev/null 2>&1; do
             echo "Waiting..."
             sleep 3
           done
 
       - name: Run ETL Data Load
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
         run: |
           pip install pymongo mysql-connector-python pandas requests
           python scripts/etl.py mongodb://127.0.0.1:27017/
-        env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
 
       - name: Run concurrent database operations
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
         run: |
           pip install mysql-connector-python
           python scripts/concurrent_ops.py
+
+      #  pass MongoDB URI ARGUMENT
+      - name: Validate data consistency
         env:
           MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-
-      - name: Validate data consistency
         run: |
           pip install pymongo mysql-connector-python
           python scripts/validate_consistency.py mongodb://127.0.0.1:27017/
-        env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
 
       - name: Stop containers
         if: always()
         run: |
-          docker stop $(docker ps -q) || true
-          docker network prune -f || true
+          docker ps -q | xargs -r docker stop
