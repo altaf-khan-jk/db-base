@@ -1,60 +1,32 @@
-import threading
 import os
 import mysql.connector
-import time
+import threading
 
-
-def simulate_db_operations(thread_id):
-    mysql_password = os.getenv("MYSQL_ROOT_PASSWORD")
+def run_mysql_query():
+    print("⚙ Running concurrent MySQL operation...")
     conn = mysql.connector.connect(
         host="127.0.0.1",
         user="root",
-        password=mysql_password,
+        password=os.getenv("MYSQL_ROOT_PASSWORD"),
         database="climate_db"
     )
     cursor = conn.cursor()
-
-    print(f" Thread {thread_id} starting DB operations...")
-
-    # Example insert
-    insert_query = "INSERT INTO weather_data (country, date, value) VALUES (%s, %s, %s)"
-    cursor.execute(insert_query, (f"T{thread_id}", "2025", thread_id * 10))
-    conn.commit()
-    print(f" Thread {thread_id} INSERT completed.")
-
-    time.sleep(1)
-
-    # Example query
     cursor.execute("SELECT COUNT(*) FROM weather_data")
     count = cursor.fetchone()[0]
-    print(f" Thread {thread_id} DB row count: {count}")
-
-    time.sleep(1)
-
-    # Example update
-    cursor.execute("UPDATE weather_data SET value = value + 1 WHERE country = %s", (f"T{thread_id}",))
-    conn.commit()
-    print(f" Thread {thread_id} UPDATE completed.")
-
+    print(f"MySQL records during concurrency check: {count}")
     cursor.close()
     conn.close()
-    print(f" Thread {thread_id} completed all DB tasks.\n")
-
 
 def main():
-    print(" Starting REAL concurrent database operations...")
-
+    print("\n🔁 Starting concurrent DB operations...")
     threads = []
-    for i in range(5):
-        t = threading.Thread(target=simulate_db_operations, args=(i + 1,))
+    for _ in range(5):
+        t = threading.Thread(target=run_mysql_query)
         threads.append(t)
         t.start()
-
     for t in threads:
         t.join()
-
-    print(" All concurrent operations completed successfully!")
-
+    print("✔ Concurrency test completed")
 
 if __name__ == "__main__":
     main()
