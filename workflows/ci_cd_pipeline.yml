@@ -37,3 +37,15 @@ jobs:
           
           echo "Creating tables..."
           mysql -h mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} climate_db < sql/create_tables.sql
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Verify MongoDB connection
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+        run: |
+          pip install pymongo
+          python scripts/test_mongo_connection.py
