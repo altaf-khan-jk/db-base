@@ -61,13 +61,17 @@ def insert_into_mysql(df):
     cursor = conn.cursor()
 
     print(" Inserting data into MySQL...")
+
+    # Replace NaN values with None (so MySQL will treat them as NULL)
+    df_clean = df.replace({pd.NA: None, float('nan'): None, 'nan': None})
+   
     insert_query = """
         INSERT INTO weather_data (country, date, value)
         VALUES (%s, %s, %s)
     """
 
     inserted_count = 0
-    for _, row in df.iterrows():
+    for _, row in df_clean.iterrows(): # Use cleaned dataframe
         cursor.execute(insert_query, (
             row.get("countryiso3code", None),
             row.get("date", None),
