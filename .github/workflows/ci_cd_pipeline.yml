@@ -50,7 +50,7 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
         run: |
-          echo "🚨 MongoDB connectivity mocked due to CI limitations"
+          echo " MongoDB connectivity mocked due to CI limitations"
           python scripts/etl.py mock
 
       - name: Run concurrent operations
