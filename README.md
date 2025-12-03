@@ -56,3 +56,41 @@ After implementing all fixes and optimizations, my pipeline successfully:
 ```
 
 The final build took approximately 48 seconds to complete and passed without any errors.
+
+## Task- 2 Monitoring and Alerting with SigNoz and Grafana
+This is the part which I have taken for this project. My responsibility was to set up a complete monitoring and alerting stack for both MySQL and MongoDB, and integrate the system with Prometheus, MySQL/MongoDB exporters, OpenTelemetry, and SigNoz.
+
+Our goal was to ensure that all database operations can be observed, measured, visualized, and alerted on, without any manual effort.
+
+## What I did
+- I began by creating a dedicated monitoring docker-compose file (docker-compose.monitoring.yml) to run the entire observability ecosystem.
+
+- In the monitoring setup, I configured MySQL and fixed issues related to authentication plugins, SSL warnings, and corrupted volumes.
+
+- I installed and configured mysqld-exporter, fixing major issues such as:
+    - missing credentials
+    - invalid DSN strings
+    - exporter failing due to .my.cnf errors
+
+- I set up MongoDB along with MongoDB Exporter to expose database metrics.
+
+- I configured Prometheus to scrape metrics from:
+    - MySQL Exporter
+    - MongoDB Exporter
+    - Application/Collector endpoints
+
+- I deployed the full SigNoz stack (ClickHouse, Query Service, Frontend) to visualize metrics, traces, and system health.
+
+- I added an OpenTelemetry Collector and connected it with SigNoz for advanced distributed tracing and future application instrumentation.
+
+- I validated all services, resolved container failures, and made sure all metrics were viewable in Prometheus and SigNoz.
+
+## Challenges faced and How I solved them
+
+| **Issue Faced**                                            | **What I Initially Tried**                   | **Final Solution**                                                                                                |
+| ---------------------------------------------------------- | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| MySQL exporter kept crashing on startup                    | Used default DSN format without any flags    | Corrected DSN to `root:root@(mysql:3306)/`, disabled SSL, and removed invalid config flags                        |
+| Exporter error: *“no user specified in section or parent”* | Passed username only in `DATA_SOURCE_NAME`   | Included full `user:password@host` syntax and removed `.my.cnf` dependency                                        |
+| Mongo exporter failed to connect                           | Used Compass-style URI                       | Simplified to `mongodb://mongo:27017` and ensured container was fully healthy before exporter startup             |
+| Frontend UI on port 3301/3302 was unreachable              | Accessed via wrong port mapping              | Updated mapping from `3302:3301` and verified WSL/Docker networking issues                                        |
+
