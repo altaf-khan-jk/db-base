@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: "mysql"
+    static_configs:
+      - targets: ["mysql-exporter:9104"]
+
+  - job_name: "mongodb"
+    static_configs:
+      - targets: ["mongodb-exporter:9216"]
+
+  - job_name: "signoz"
+    static_configs:
+      - targets: ["signoz-query-service:8080"]
