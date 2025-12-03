@@ -41,6 +41,17 @@ services:
     depends_on:
       - mongo
 
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+
   clickhouse:
     image: clickhouse/clickhouse-server:latest
     container_name: signoz-clickhouse
@@ -104,3 +115,4 @@ services:
 
 volumes:
   signoz-data:
+  grafana-data:
