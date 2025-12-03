@@ -113,6 +113,19 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
 
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    ports:
+      - "8081:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    restart: always
+
+
 volumes:
   signoz-data:
   grafana-data:
