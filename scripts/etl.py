@@ -18,8 +18,11 @@ def get_mongo_uri():
 
 def fetch_climate_data():
     url = "https://api.worldbank.org/v2/country/CAN/indicator/EN.CLC.MDAT.ZS?format=json"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+    }
     print(f"Fetching data from API: {url}")
-    response = requests.get(url)
+    response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
         raise Exception(f"API fetch failed with status code {response.status_code}")
